@@ -1,9 +1,9 @@
 {
-    "name": "php-activerecord/php-activerecord",
+    "name": "visavi/phpactiverecord",
     "type": "library",
-    "description": "php-activerecord is an open source ORM library based on the ActiveRecord pattern.",
+    "description": "phpactiverecord is an open source ORM library based on the ActiveRecord pattern.",
     "keywords": ["activerecord", "orm"],
-    "homepage": "http://www.phpactiverecord.org/",
+    "homepage": "http://visavi.net/",
     "license": "MIT",
     "require": {
         "php": ">=5.3.0"

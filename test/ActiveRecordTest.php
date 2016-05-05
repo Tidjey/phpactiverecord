@@ -154,11 +154,11 @@ class ActiveRecordTest extends DatabaseTest
 		$venue->reload();
 		$this->assert_equals('NY', $venue->state);
 	}
-	
+
 	public function test_reload_protected_attribute()
 	{
 		$book = BookAttrAccessible::find(1);
-	
+
 		$book->name = "Should not stay";
 		$book->reload();
 		$this->assert_not_equals("Should not stay", $book->name);
@@ -375,7 +375,7 @@ class ActiveRecordTest extends DatabaseTest
 		$this->assert_equals($original+1,Author::count());
 		$this->assert_true($ret);
 	}
-	
+
 	public function test_transaction_committed_when_returning_true()
 	{
 		$original = Author::count();
@@ -383,21 +383,21 @@ class ActiveRecordTest extends DatabaseTest
 		$this->assert_equals($original+1,Author::count());
 		$this->assert_true($ret);
 	}
-	
+
 	public function test_transaction_rolledback_by_returning_false()
 	{
 		$original = Author::count();
-		
+
 		$ret = Author::transaction(function()
 		{
 			Author::create(array("name" => "blah"));
 			return false;
 		});
-		
+
 		$this->assert_equals($original,Author::count());
 		$this->assert_false($ret);
 	}
-	
+
 	public function test_transaction_rolledback_by_throwing_exception()
 	{
 		$original = Author::count();
@@ -660,13 +660,22 @@ class ActiveRecordTest extends DatabaseTest
 		$this->assert_equals("The most fun", $changes['description'][1]);
 	}
 
-	public function test_assigning_php_datetime_gets_converted_to_ar_datetime()
+	public function test_assigning_php_datetime_gets_converted_to_date_class_with_defaults()
 	{
 		$author = new Author();
 		$author->created_at = $now = new \DateTime();
-		$this->assert_is_a("ActiveRecord\\DateTime",$author->created_at);
+		$this->assert_is_a("ActiveRecord\\DateTime", $author->created_at);
 		$this->assert_datetime_equals($now,$author->created_at);
 	}
+
+	public function test_assigning_php_datetime_gets_converted_to_date_class_with_custom_date_class()
+	{
+		ActiveRecord\Config::instance()->set_date_class('\\DateTime'); // use PHP built-in DateTime
+		$author = new Author();
+		$author->created_at = $now = new \DateTime();
+		$this->assert_is_a("DateTime", $author->created_at);
+ 		$this->assert_datetime_equals($now,$author->created_at);
+  	}
 
 	public function test_assigning_from_mass_assignment_php_datetime_gets_converted_to_ar_datetime()
 	{

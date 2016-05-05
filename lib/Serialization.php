@@ -107,7 +107,7 @@ abstract class Serialization
 		$this->check_except();
 		$this->check_methods();
 		$this->check_include();
-		$this->check_only_method();        
+		$this->check_only_method();
 	}
 
 	private function check_only()
@@ -146,7 +146,7 @@ abstract class Serialization
 			}
 		}
 	}
-	
+
 	private function check_only_method()
 	{
 		if (isset($this->options['only_method']))
@@ -221,9 +221,10 @@ abstract class Serialization
 	 */
 	final public function to_a()
 	{
+		$date_class = Config::instance()->get_date_class();
 		foreach ($this->attributes as &$value)
 		{
-			if ($value instanceof \DateTime)
+			if ($value instanceof $date_class)
 				$value = $value->format(self::$DATETIME_FORMAT);
 		}
 		return $this->attributes;

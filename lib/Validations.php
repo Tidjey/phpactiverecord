@@ -63,6 +63,7 @@ class Validations
 		'allow_null' => false,
 		'allow_blank' => false,
 		'message' => null,
+		'scenario' => null,
 	);
 
 	private static  $ALL_RANGE_OPTIONS = array(
@@ -181,8 +182,13 @@ class Validations
 		{
 			$options = array_merge($configuration, $attr);
 
-			if( $this->validation_mode_matches($options['on']) )
+			if( $this->validation_mode_matches($options['on']) ) {
+
+				if (!$this->validation_scenario($options['scenario']))
+					continue;
+
 				$this->record->add_on_blank($options[0], $options['message']);
+			}
 		}
 	}
 
@@ -263,6 +269,9 @@ class Validations
 			if (!$this->validation_mode_matches($options['on']))
 				continue;
 
+			if (!$this->validation_scenario($options['scenario']))
+				continue;
+
 			$attribute = $options[0];
 			$var = $this->model->$attribute;
 
@@ -324,6 +333,9 @@ class Validations
 			$options = array_merge($configuration, $attr);
 
 			if (!$this->validation_mode_matches($options['on']))
+				continue;
+
+			if (!$this->validation_scenario($options['scenario']))
 				continue;
 
 			$attribute = $options[0];
@@ -439,6 +451,9 @@ class Validations
 			if (!$this->validation_mode_matches($options['on']))
 				continue;
 
+			if (!$this->validation_scenario($options['scenario']))
+				continue;
+
 			$attribute = $options[0];
 			$var = $this->model->$attribute;
 
@@ -492,6 +507,9 @@ class Validations
 			$options = array_merge($configuration, $attr);
 
 			if (!$this->validation_mode_matches($options['on']))
+				continue;
+
+			if (!$this->validation_scenario($options['scenario']))
 				continue;
 
 			$range_options = array_intersect(array_keys(self::$ALL_RANGE_OPTIONS), array_keys($attr));
@@ -599,6 +617,9 @@ class Validations
 			if (!$this->validation_mode_matches($options['on']))
 				continue;
 
+			if (!$this->validation_scenario($options['scenario']))
+				continue;
+
 			$pk = $this->model->get_primary_key();
 			$pk_value = $this->model->{$pk[0]};
 
@@ -680,6 +701,19 @@ class Validations
 			return in_array($this->validation_mode, array('create', 'update'));
 
 		return $mode == $this->validation_mode;
+	}
+
+	/**
+	 * Check scenario mode
+	 * @param  string  $scenario scenario mode
+	 * @return boolean
+	 */
+	private function validation_scenario($scenario)
+	{
+		if (! empty($scenario) )
+			$scenario = (array)$scenario;
+
+		return (empty($scenario) || (isset($this->model->scenario) && in_array($this->model->scenario, $scenario)));
 	}
 
 	private function is_null_with_option($var, &$options)

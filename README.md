@@ -14,15 +14,26 @@
 - Добавлен класс для работы с Memcached
 - Добавлены сценарии, что-то примерно как в yii 1.1, валидация будет срабатывать только для определенного сценария
 
-[![Build Status](https://travis-ci.org/jpfuentes2/php-activerecord.png?branch=master)](https://travis-ci.org/jpfuentes2/php-activerecord)
+### Пример использования
 
-by
-* [visavi.net](https://visavi.net) - Vantuz
-* [@kla](https://github.com/kla) - Kien La
-* [@jpfuentes2](https://github.com/jpfuentes2) - Jacques Fuentes
-* [And these terrific Contributors](https://github.com/kla/php-activerecord/contributors)
+####В моделе
 
-<http://www.phpactiverecord.org/>
+```php
+static $validates_presence_of = [
+  ['reply', 'message' => 'Необходимо заполнить поле ответ', 'scenario' => 'reply'],
+];
+```
+
+####В контроллере
+```php
+$guest = new Guestbook();
+$guest->scenario = 'reply';
+$guest->text = 'Текст сообщения';
+$guest->reply = 'Ответ';
+```
+Если передано свойство scenario = имя сценария, то при валидации данных будет проверено с учетом данного сценария, в противном случае правило валидации будет проигнорировано
+
+Можно передавать массив сценариев: `'scenario' => ['reply', 'answer']`
 
 ## Introduction ##
 A brief summarization of what ActiveRecord is:
@@ -181,7 +192,3 @@ $post->delete();
 # DELETE FROM `posts` WHERE id=1
 echo $post->title; # 'New real title'
 ```
-
-## Contributing ##
-
-Please refer to [CONTRIBUTING.md](https://github.com/jpfuentes2/php-activerecord/blob/master/CONTRIBUTING.md) for information on how to contribute to PHP ActiveRecord.

@@ -220,10 +220,25 @@ class Utils
 		return false;
 	}
 
+   /**
+     * Проверяет является ли строка или число пустым
+     * @param  mixed  $var проверяемая строка
+     * @return boolean     результат проверки
+     */
 	public static function is_blank($var)
 	{
-		return 0 === strlen($var);
+		return 0 === mb_strlen($var);
 	}
+
+    /**
+     * Проверяет является ли строка или число нулем
+     * @param  mixed  $var проверяемая строка
+     * @return boolean     результат проверки
+     */
+    public static function is_empty($var)
+    {
+        return 0 === $var;
+    }
 
 	private static $plural = array(
         '/(quiz)$/i'               => "$1zes",

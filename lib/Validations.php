@@ -55,13 +55,15 @@ class Validations
 		'validates_exclusion_of',
 		'validates_format_of',
 		'validates_numericality_of',
-		'validates_uniqueness_of'
+		'validates_uniqueness_of',
+		'validates_existence_of'
 	);
 
 	private static $DEFAULT_VALIDATION_OPTIONS = array(
 		'on' => 'save',
 		'allow_null' => false,
 		'allow_blank' => false,
+		'allow_empty' => false,
 		'message' => null,
 		'scenario' => null,
 	);
@@ -564,6 +566,7 @@ class Validations
 					$message = str_replace('%d', $option, $message);
 					$attribute_value = $this->model->$attribute;
 					$len = mb_strlen($attribute_value);
+
 					$value = (int)$attr[$range_option];
 
 					if ('maximum' == $range_option && $len > $value)
@@ -576,6 +579,70 @@ class Validations
 						$this->record->add($attribute, $message);
 				}
 			}
+		}
+	}
+
+	/**
+	 * Validates the exists of a value.
+	 *
+	 * <code>
+	 * class Person extends ActiveRecord\Model {
+	 *   static $validates_existence_of = array(
+	 *     array('profile_id', 'in' => 'Profile:id')
+	 *   );
+	 * }
+	 * </code>
+	 *
+	 * Available options:
+	 *
+	 * <ul>
+	 * <li><b>in:</b> attribute should point to the model and the field name</li>
+	 * <li><b>presence:</b> Should or should not present a value in the model. (default: true)</li>
+	 * <li><b>message:</b> custome error message</li>
+	 * <li><b>allow_empty:</b> allow empty value if specified, the verification of the existence does not pass</li>
+	 * </ul>
+	 *
+	 * @param array $attrs Validation definition
+	 */
+
+	public function validates_existence_of($attrs)
+	{
+		$configuration = array_merge(self::$DEFAULT_VALIDATION_OPTIONS, array(
+			'exists' => Errors::$DEFAULT_ERROR_MESSAGES['exists'],
+			'not_exists' => Errors::$DEFAULT_ERROR_MESSAGES['not_exists'],
+			'presence' => true
+		));
+
+		foreach ($attrs as $attr)
+		{
+			$options = array_merge($configuration, $attr);
+
+			if (!$this->validation_mode_matches($options['on']))
+				continue;
+
+			if (!$this->validation_scenario($options['scenario']))
+				continue;
+
+			$attribute = $options[0];
+			$var = $this->model->$attribute;
+
+			if ($this->is_empty_with_option($var, $options))
+				continue;
+
+			if (isset($options['message']))
+				$message = $options['message'];
+			else
+				$message = $options['presence'] ? $options['exists'] : $options['not_exists'] ;
+
+			$message = str_replace('%s', $options['in'], $message);
+
+			list($model, $field) = explode(':', $options['in']);
+
+			if ($options['presence'] && ! $model::exists(array($field => $var)))
+				$this->record->add($attribute, $message);
+
+			elseif (! $options['presence'] && $model::exists(array($field => $var)))
+				$this->record->add($attribute, $message);
 		}
 	}
 
@@ -725,6 +792,11 @@ class Validations
 	{
 		return (Utils::is_blank($var) && (isset($options['allow_blank']) && $options['allow_blank']));
 	}
+
+	private function is_empty_with_option($var, &$options)
+	{
+		return (Utils::is_empty($var) && (isset($options['allow_empty']) && $options['allow_empty']));
+	}
 }
 
 /**
@@ -757,7 +829,9 @@ class Errors implements IteratorAggregate
 		'even'         => "must be even",
 		'unique'       => "must be unique",
 		'less_than_or_equal_to' => "must be less than or equal to %d",
-		'greater_than_or_equal_to' => "must be greater than or equal to %d"
+		'greater_than_or_equal_to' => "must be greater than or equal to %d",
+		'exists'       => "must exist in the %s",
+		'not_exists'   => "should not exist in the %s"
 	);
 
 	/**

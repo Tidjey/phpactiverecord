@@ -12,7 +12,8 @@
 - Все фиксы из ветки мастер, актуальность отслеживается
 - Более удобный вывод логов - https://github.com/jpfuentes2/php-activerecord/pull/444/files
 - Добавлен класс для работы с Memcached
-- Добавлены сценарии, что-то примерно как в yii 1.1, валидация будет срабатывать только для определенного сценария
+- Добавлены сценарии, примерно как в yii 1.1, валидация будет срабатывать только для определенного сценария
+- Добавлена поддержка проверка длины UTF-8 строк, в оригинале методы валидации неверно определяют длину строки
 
 ### Пример использования
 
@@ -41,6 +42,24 @@ $guest->save();
 ```
 
 Можно передавать массив сценариев: `'scenario' => ['reply', 'answer']`
+
+### Вид лога
+```
+[info] 0.002s -- SHOW COLUMNS FROM `users` [июн 21 15:21:47]
+[info] 0.001s -- SELECT * FROM `users` WHERE `id`='1' LIMIT 0,1 [июн 21 15:21:48]
+[info] 0.001s -- SHOW COLUMNS FROM `forums` [июн 21 15:21:48]
+[info] 0.001s -- SELECT * FROM `forums` WHERE parent_id = '0' ORDER BY sort [июн 21 15:21:48]
+[info] 0.001s -- SHOW COLUMNS FROM `topics` [июн 21 15:21:48]
+[info] 0.000s -- SELECT count(*) as count, forum_id FROM `topics` WHERE `forum_id` IN('1','2','3','4') GROUP BY forum_id [июн 21 15:21:48]
+[info] 0.000s -- SELECT * FROM `forums` WHERE `parent_id` IN('1','2','3','4') ORDER BY sort DESC [июн 21 15:21:48]
+[info] 0.001s -- SHOW COLUMNS FROM `posts` [июн 21 15:21:48]
+[info] 0.001s -- SELECT count(*) as count, forum_id FROM `posts` WHERE `forum_id` IN('15','14','13','12','11','10','9','8','7','6','5') GROUP BY forum_id [июн 21 15:21:48]
+[info] 0.000s -- SELECT count(*) as count, forum_id FROM `topics` WHERE `forum_id` IN('15','14','13','12','11','10','9','8','7','6','5') GROUP BY forum_id [июн 21 15:21:48]
+[info] 0.000s -- SHOW COLUMNS FROM `topics` [июн 21 15:21:48]
+[info] 0.000s -- SELECT * FROM `topics` WHERE `id` IN('7',NULL,NULL,NULL) [июн 21 15:21:48]
+```
+Показывается время выполнения каждого запроса и подставлены все значения в плейсхолдеры
+
 
 ## Introduction ##
 A brief summarization of what ActiveRecord is:
